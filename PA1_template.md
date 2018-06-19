@@ -6,10 +6,7 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
-```
+
 
 
 ## Loading and preprocessing the data
@@ -20,7 +17,8 @@ of an anonymous individual collected in October / November 2012.
 [1]: https://d396qusza40orc.cloudfront.net/repdata/data/activity.zip
 
 
-```{r load_data}
+
+```r
 activity <-
     read.csv(
         file = unzip("./activity.zip"),
@@ -34,7 +32,8 @@ activity <-
 The total number of daily steps varies as shown in the plot below.
 
 
-```{r daily_steps}
+
+```r
 daily_steps <- with(activity, tapply(steps, date, sum))
 
 mean_daily_steps <- format(mean(daily_steps, na.rm = TRUE), scientific = FALSE)
@@ -44,29 +43,25 @@ median_daily_steps <- median(daily_steps, na.rm = TRUE)
 hist(daily_steps, xlab = "Steps per Day", main = "Total Number of Steps per Day")
 ```
 
-*Mean total number of daily steps* is **`r mean_daily_steps`** and *median* **`r median_daily_steps`**.
+![](PA1_template_files/figure-html/daily_steps-1.png)<!-- -->
+
+*Mean total number of daily steps* is **10766.19** and *median* **10765**.
 
 ## What is the average daily activity pattern?
 
-```{r daily_activity}
-# calculate mean steps for each 5min interval
+
+```r
 mean_steps_per_interval <- with(activity, tapply(steps, interval, mean, na.rm = TRUE))
-# find maximum steps done in a 5min interval
 max_steps_per_interval <- max(mean_steps_per_interval)
-# identify the 5min interval with maximum steps
 max_steps_interval <- names(which.max(mean_steps_per_interval))
-# plot average steps per 5min interval
-plot(
-    names(mean_steps_per_interval),
-    mean_steps_per_interval,
-    type = "l",
-    xlab = "5min interval",
-    ylab = "mean steps per interval"
-)
+
+plot(names(mean_steps_per_interval), mean_steps_per_interval, type = "l", xlab = "5min interval", ylab = "mean steps per interval")
 ```
 
-*Average daily activity* peaks in the morning hours with a maximum
-at interval **`r max_steps_interval`**.
+![](PA1_template_files/figure-html/daily_activity-1.png)<!-- -->
+
+Average daily activity peaks in the morning hours with a maximum
+at **835**.
 
 ## Imputing missing values
 

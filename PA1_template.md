@@ -19,6 +19,7 @@ of an anonymous individual collected in October / November 2012.
 
 
 ```r
+# load the data into a data frame
 activity <-
     read.csv(
         file = unzip("./activity.zip"),
@@ -29,12 +30,12 @@ activity <-
 
 ## What is mean total number of steps taken per day?
 
-The total number of daily steps varies as shown in the plot below.
+The total number of daily steps varies as shown in the histogram below.
 
 
 
 ```r
-# sum up total daily steps
+# calculate the total number of steps taken per day
 daily_steps <- with(activity, tapply(steps, date, sum))
 
 # calculate mean daily steps
@@ -51,7 +52,8 @@ hist(daily_steps,
 
 ![](PA1_template_files/figure-html/daily_steps-1.png)<!-- -->
 
-*Mean total number of daily steps* is **10766.19** and *median* **10765**.
+The mean total number of steps taken per day is **10766.19**.  
+The median is **10765**.
 
 ## What is the average daily activity pattern?
 
@@ -71,9 +73,10 @@ plot(
     names(mean_steps_per_interval),
     mean_steps_per_interval,
     type = "l",
-    xlab = "5min interval",
-    ylab = "mean steps per interval"
+    xlab = "5-minute Interval",
+    ylab = "Mean Number of Steps"
 )
+abline(v = max_steps_interval, col = "red")
 ```
 
 ![](PA1_template_files/figure-html/daily_activity-1.png)<!-- -->
@@ -92,10 +95,10 @@ missing_steps <- is.na(activity$steps)
 count_missing_steps <- sum(missing_steps)
 ```
 
-Our *Activitiy Monitoring Dataset* has **2304** rows
-with missing values (NA values).
+The [Activity Monitoring Data][1] has **2304** rows
+with missing values (NA).
 
-My strategy for filling in these missing values will be to impute NA values
+My strategy for filling in these missing values will be to impute NAs
 with the mean for the affected 5-minute interval.
 
 
@@ -121,42 +124,45 @@ median_imp_daily_steps <-
 # plot histogram of daily steps
 hist(imp_daily_steps,
      xlab = "Steps per Day",
-     main = "Total Number of Steps per Day (NAs imputed)")
+     main = "Total Number of Steps per Day (with NAs imputed)")
 ```
 
 ![](PA1_template_files/figure-html/impute-1.png)<!-- -->
 
-After imputing NA values *mean total number of daily steps* is **10766.19** and *median* **10766.19**.
+After imputing NA values *mean total number of daily steps* is **10766.19** and *median* is **10766.19**.
+
+Conclusion: Imputing NAs has only little impact on the estimates of the total daily number of steps.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+
 ```r
-# differentiate weekend from workday
+# distinguish weekends from workdays
 day_type <-
-    ifelse(weekdays(activity$date) %in% c("Saturday", "Sunday"),
+    ifelse(weekdays(imputed_activity$date) %in% c("Saturday", "Sunday"),
            "weekend",
            "weekday")
-# and add new column to activity data frame
-activity$day_type <- as.factor(day_type)
+# and add the new column to our data frame
+imputed_activity$day_type <- as.factor(day_type)
 
+# calculate mean steps per interval and day type
 mean_steps_by_day_type <-
     aggregate(
         formula = steps ~ interval + day_type,
-        data = activity,
-        FUN = mean,
-        na.rm = TRUE
+        data = imputed_activity,
+        FUN = mean
     )
 
-# plot mean steps by day type
+# plot mean steps by interval for both day types
 qplot(
     interval,
     steps,
     data = mean_steps_by_day_type,
     geom = "line",
     facets = day_type ~ .,
-    xlab = "5min interval",
-    ylab = "mean number of steps"
-    #main = "Differences in Activity Patterns between Weekdays and Weekends"
+    xlab = "5-minute Interval",
+    ylab = "Mean Number of Steps",
+    main = "Activity Profiles on Weekdays and Weekends"
 )
 ```
 

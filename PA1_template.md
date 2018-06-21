@@ -104,7 +104,7 @@ with the mean for the affected 5-minute interval.
 imputed_activity <- data.frame(activity)
 
 # replace NAs with mean steps for affected interval
-imputed_activity[missing_steps, ]$steps <- 
+imputed_activity[missing_steps, ]$steps <-
     mean_steps_per_interval[as.character(imputed_activity[missing_steps, ]$interval)]
 
 # sum up total daily steps
@@ -129,3 +129,35 @@ hist(imp_daily_steps,
 After imputing NA values *mean total number of daily steps* is **10766.19** and *median* **10766.19**.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```r
+# differentiate weekend from workday
+day_type <-
+    ifelse(weekdays(activity$date) %in% c("Saturday", "Sunday"),
+           "weekend",
+           "weekday")
+# and add new column to activity data frame
+activity$day_type <- as.factor(day_type)
+
+mean_steps_by_day_type <-
+    aggregate(
+        formula = steps ~ interval + day_type,
+        data = activity,
+        FUN = mean,
+        na.rm = TRUE
+    )
+
+# plot mean steps by day type
+qplot(
+    interval,
+    steps,
+    data = mean_steps_by_day_type,
+    geom = "line",
+    facets = day_type ~ .,
+    xlab = "5min interval",
+    ylab = "mean number of steps"
+    #main = "Differences in Activity Patterns between Weekdays and Weekends"
+)
+```
+
+![](PA1_template_files/figure-html/weekday-1.png)<!-- -->
